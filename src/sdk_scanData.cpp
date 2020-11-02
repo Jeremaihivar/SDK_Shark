@@ -1,7 +1,7 @@
 ﻿#include "base/lidar.h"
 #include <stdio.h>
 
-Dev device;
+#include <fstream>
 
 int main(int argc, char **argv)
 {
@@ -23,6 +23,7 @@ int main(int argc, char **argv)
     sprintf(buff, "/dev/ttyUSB%d", com_id);
 #endif
 
+    Dev device;
     int rtn = device.openSerial(buff, 115200);                       // For windows OS
     if (rtn != 1)
     {
@@ -40,35 +41,46 @@ int main(int argc, char **argv)
 
     std::thread thr(threadExitFunc);
     thr.detach();
-
+    
     device.initialize();
     double angle_vel = 0;       // angle velocity (radian)
     bool is_reverse = true;     // whether reverse the data packages
-    TimeOut timer;
-    unsigned long long data_stamp_old = 0, data_stamp_new = 0;
+    printf("press any key exited\n");
+
     while (!isExit)
     {
         node_info nodebuffer[2048];
-        size_t count = 0;
-        data_stamp_new = device.GetScanData(nodebuffer, count, angle_vel, is_reverse);
-        for (int i = 0;i < count; ++i)
+        size_t count = 2048;
+        
+        device.GetScanData(nodebuffer, count, angle_vel, is_reverse);
+        
+        int errcode = device.GetLastErrCode();
+        if (errcode != LIDAR_SUCCESS)
         {
-            // Comment the print sentence if necessary
-            // FD->First Degree, LD->Last Degree, TC: Time Cost
-            printf("data size=%d, FD=[%.2f], TC=%.3fms, stamp: %d\n",
-                count,
-                nodebuffer[i].angle_q6_checkbit / 64.0f,
-                timer.Duation_ms(),
-				nodebuffer[i].stamp);
-            //data_stamp_old = data_stamp_new;
-            timer.InitTimer();
-            // Perform other data processing...
-
+            printf("errcode:%d\n", errcode);
+        }
+            
+        if (count == 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        for (size_t i = 0;i < count; ++i)
+        {
+            
+            printf("angle:%d, distance:%d, sync_quality:%d, isValid:%llu\n",
+                nodebuffer[i].angle_q6_checkbit, 
+                nodebuffer[i].distance_q2, 
+                nodebuffer[i].sync_quality,
+                nodebuffer[i].isValid);
+           
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
     device.closeSerial();
+
     return 0;
 }
