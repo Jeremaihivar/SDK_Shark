@@ -29,10 +29,10 @@ struct rangedata
 
 struct node_info
 {
-    uint8_t    sync_quality;
+    uint16_t    sync_quality;
     uint16_t   angle_q6_checkbit;
     uint16_t   distance_q2;
-    uint64_t   isValid;// 1有效  0 无效
+    uint16_t   isValid;// 1有效  0 无效
 	unsigned int speed;
     bool operator<(const node_info& _Left) const
     {

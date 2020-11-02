@@ -69,11 +69,12 @@ int main(int argc, char **argv)
         for (size_t i = 0;i < count; ++i)
         {
             
-            printf("angle:%d, distance:%d, sync_quality:%d, isValid:%llu\n",
+            printf("angle:%d, distance:%d, sync_quality:%d, isValid:%d, speed:%d\n",
                 nodebuffer[i].angle_q6_checkbit, 
                 nodebuffer[i].distance_q2, 
                 nodebuffer[i].sync_quality,
-                nodebuffer[i].isValid);
+                nodebuffer[i].isValid,
+			    nodebuffer[i].speed);
            
         }
 
