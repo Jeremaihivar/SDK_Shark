@@ -59,6 +59,8 @@ int Dev::parse(BYTE* in_buffer, const int in_numData,rangedata *out_dataPack)
 {
     // The size of each data is 3 bytes
     int data_size = unitDataSize_;
+
+	//printf("data_size:%d\n", data_size);
     
     // in_numData: sampling number in every data package
     int id_start = 2;
@@ -108,6 +110,7 @@ int Dev::parse(BYTE* in_buffer, const int in_numData,rangedata *out_dataPack)
         else if (data_size == 4)
         {
             out_dataPack[i].syn_quality = (data[3]<< 8) | data[2];
+			//printf("%d\n", out_dataPack[i].syn_quality);
         }
         else
         {
@@ -292,7 +295,7 @@ void Dev::cacheScanData()
             }
 
             node_cur.angle_q6_checkbit = (uint16_t)(dataPack[i].angle * 64);
-            node_cur.sync_quality = (uint8_t)dataPack[i].syn_quality;
+            node_cur.sync_quality = (uint16_t)dataPack[i].syn_quality;
 			node_cur.speed = dataPack[i].speed;
             if (preAngle > angle_cur)
             {
