@@ -293,7 +293,7 @@ void Dev::cacheScanData()
 
             node_cur.angle_q6_checkbit = (uint16_t)(dataPack[i].angle * 64);
             node_cur.sync_quality = (uint8_t)dataPack[i].syn_quality;
-
+			node_cur.speed = dataPack[i].speed;
             if (preAngle > angle_cur)
             {
                 isTurn = true;
@@ -337,6 +337,7 @@ void Dev::GrabScanDataWithLoop(std::list<node_info>& nodeList, node_info* nodebu
         nodebuffer[i].distance_q2 = 0;
         nodebuffer[i].isValid = 0;
         nodebuffer[i].sync_quality = 0;
+		nodebuffer[i].speed = 0;
         //printf("%.3f,%d,%d\n", nodebuffer[i].angle_q6_checkbit, nodebuffer[i].distance_q2, nodebuffer[i].isValid);
     }
 
@@ -366,10 +367,11 @@ void Dev::PushValidData2Buffer(node_info& nodeInfo, int index, node_info* nodebu
         index = index % len;
         if (nodebuffer[index].isValid == 0)
         {
-            nodebuffer[index].isValid = 1;
-            nodebuffer[index].angle_q6_checkbit = nodeInfo.angle_q6_checkbit;
-            nodebuffer[index].distance_q2 = nodeInfo.distance_q2;
-            nodebuffer[index].sync_quality = nodeInfo.sync_quality;
+            //nodebuffer[index].isValid = 1;
+            //nodebuffer[index].angle_q6_checkbit = nodeInfo.angle_q6_checkbit;
+            //nodebuffer[index].distance_q2 = nodeInfo.distance_q2;
+            //nodebuffer[index].sync_quality = nodeInfo.sync_quality;
+			nodebuffer[index] = nodeInfo;
             isExit = true;
         }
 

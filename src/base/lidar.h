@@ -33,6 +33,7 @@ struct node_info
     uint16_t   angle_q6_checkbit;
     uint16_t   distance_q2;
     uint64_t   isValid;// 1有效  0 无效
+	unsigned int speed;
     bool operator<(const node_info& _Left) const
     {
         if (_Left.angle_q6_checkbit < this->angle_q6_checkbit)
