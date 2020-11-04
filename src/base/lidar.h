@@ -14,11 +14,11 @@ typedef unsigned char BYTE;
 
 struct rangedata
 {
-    bool flag;                          // 0->valid, 1->invalid
+    bool flag;                         // 0->valid, 1->invalid
     float angle;                       // degree
-    unsigned int dist;            // millimeter
-    unsigned int speed;
-    unsigned int syn_quality;     //亮度信息  2020-10-29
+    unsigned int dist;                 // millimeter
+    unsigned int speed;                //rpm(转/分钟) 
+    unsigned int syn_quality;          //亮度信息  2020-10-29
     rangedata() :
         flag(false),
         angle(0.),

@@ -43,9 +43,13 @@ int main(int argc, char **argv)
     thr.detach();
     
     device.initialize();
-    double angle_vel = 0;       // angle velocity (radian)
+    double angle_vel = 0;       // angle velocity (degree)   该参数在整圈数据时使用
     bool is_reverse = true;     // whether reverse the data packages
     printf("press any key exited\n");
+
+	std::ofstream out;
+	out.open("AllData.csv");
+
 
     while (!isExit)
     {
@@ -69,19 +73,32 @@ int main(int argc, char **argv)
         for (size_t i = 0;i < count; ++i)
         {
             
-            printf("angle:%d, distance:%d, sync_quality:%d, isValid:%d, speed:%d\n",
-                nodebuffer[i].angle_q6_checkbit, 
-                nodebuffer[i].distance_q2, 
+            printf("angle:%.3f, distance:%d, sync_quality:%d, isValid:%d, speed:%d\n",
+                nodebuffer[i].angle_q6_checkbit / 64.0, 
+                nodebuffer[i].distance_q2 / 4, 
                 nodebuffer[i].sync_quality,
                 nodebuffer[i].isValid,
-			    nodebuffer[i].speed);
-           
+			    nodebuffer[i].speed);                    //isValid == 1为有效，isValid == 0为无效
+
+			char buff[128] = { 0 };
+			sprintf(buff, "angle:%.3f, distance:%d, sync_quality:%d, isValid:%d, speed:%d\n",
+				nodebuffer[i].angle_q6_checkbit / 64.0,
+				nodebuffer[i].distance_q2 / 4,
+				nodebuffer[i].sync_quality,
+				nodebuffer[i].isValid,
+				nodebuffer[i].speed);           
+			out.write(buff, strlen(buff));
+
         }
+		out.write("\n", 1);
+
 
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
     device.closeSerial();
+
+	out.close();
 
     return 0;
 }

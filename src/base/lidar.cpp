@@ -149,7 +149,6 @@ void  Dev::initialize()
     isGetLoopData_ = false;
 
     thread_ = std::thread(&Dev::cacheScanData, this);
-
 }
 
 unsigned long long Dev::GetScanData(node_info * nodebuffer, size_t &count, const double angle_vel /*= 0*/, const bool is_reverse /*= true*/)
