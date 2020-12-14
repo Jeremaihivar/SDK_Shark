@@ -57,7 +57,6 @@ int main(int argc, char **argv)
         size_t count = 2048;
         
         device.GetScanData(nodebuffer, count, angle_vel, is_reverse);
-        
         int errcode = device.GetLastErrCode();
         if (errcode != LIDAR_SUCCESS)
         {
@@ -66,9 +65,11 @@ int main(int argc, char **argv)
             
         if (count == 0)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
         }
+
+		printf("counts:%d \n", count);
 
         for (size_t i = 0;i < count; ++i)
         {
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
 		out.write("\n", 1);
 
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 
     device.closeSerial();
