@@ -6,7 +6,7 @@
 
 //小雷达参数配置（2080Hz）
 
-#define CENTER_BASE_ANGLE 30.0  //线性补偿角度，小雷达30度
+#define CENTER_BASE_ANGLE 28.5  //线性补偿角度
 #define CENTER_BASE_LINE 17.9   //非线性补偿时的基准距离
 
 #define FPS_MAX 2160    //最大fps，小雷达3150
