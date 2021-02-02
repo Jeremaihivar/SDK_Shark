@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 #endif
 
     Dev device;
-    int rtn = device.openSerial(buff, 153600);                       // For windows OS
+    int rtn = device.openSerial(buff, 230400);                       // For windows OS
     if (rtn != 1)
     {
         printf("Error: Unable to open serial port!\n");

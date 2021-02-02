@@ -123,6 +123,7 @@ char rOc_serial::openDevice(const char *Device,const unsigned int Bauds)
     case 115200 :   dcbSerialParams.BaudRate=CBR_115200; break;
     case 128000 :   dcbSerialParams.BaudRate=CBR_128000; break;
 	case 153600 :   dcbSerialParams.BaudRate=153600; break;
+	case 230400:   dcbSerialParams.BaudRate = 230400; break;
     case 256000 :   dcbSerialParams.BaudRate=CBR_256000; break;
     case 1500000 :   dcbSerialParams.BaudRate=1500000; break;
     default : return -4;
@@ -171,6 +172,7 @@ char rOc_serial::openDevice(const char *Device,const unsigned int Bauds)
     case 57600 :    Speed=B57600; break;
     case 115200 :   Speed=B115200; break;
 	case 153600:    Speed = 153600; break;
+	case 230400:    Speed = 230400; break;
     default : return -4;
     }
     cfsetispeed(&options, Speed);                                       // Set the baud rate at 115200 bauds
