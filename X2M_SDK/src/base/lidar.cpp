@@ -1,4 +1,5 @@
-﻿#include "lidar.h"
+﻿//V2.0.8
+#include "lidar.h"
 #include <vector>
 #include <set>
 #include <chrono>

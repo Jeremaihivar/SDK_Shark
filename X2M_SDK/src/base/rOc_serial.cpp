@@ -22,6 +22,7 @@ This is a licence-free software, it can be used by anyone who try to build a bet
 //_____________________________________
 // ::: Constructors and destructors :::
 
+#define  B230400  0010003
 
 /*!
 \brief      Constructor of the class rOc_serial.
@@ -172,7 +173,7 @@ char rOc_serial::openDevice(const char *Device,const unsigned int Bauds)
     case 57600 :    Speed=B57600; break;
     case 115200 :   Speed=B115200; break;
 	case 153600:    Speed = 153600; break;
-	case 230400:    Speed = 230400; break;
+	case 230400:    Speed=B230400; break;
     default : return -4;
     }
     cfsetispeed(&options, Speed);                                       // Set the baud rate at 115200 bauds
