@@ -120,7 +120,7 @@ private:
     std::vector<UCHAR>       m_lstTemp;
     UCHAR                   *m_p8Buff;
 
-    bool                     m_bScanning = false;
+	std::atomic<bool>        m_bScanning;
 
 
     std::thread              m_threadWork;
@@ -204,6 +204,7 @@ private:
 
 
 private:
+	void initPara();
     bool setLidarPara(const char* chLidarModel);
     void lidarReConnect();
     void processMain();

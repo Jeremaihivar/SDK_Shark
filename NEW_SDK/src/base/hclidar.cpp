@@ -10,15 +10,7 @@
 
 HCLidar::HCLidar()
 {
-    m_iSDKStatus = SDK_UNINIT;
-    m_iLastErrorCode = 0;
-    m_bDisconnect = true;
-    m_bHadID=false;
-    m_bGetIDTimeOut=false;
-    m_bHadFact=false;
-    m_bGetFactTimeOut=false;
-	m_bInitTimeout = false;
-    m_sStatistic.reset();
+	initPara();
     m_p8Buff = new UCHAR[READ_BUFF_SIZE];
 }
 
@@ -31,6 +23,21 @@ HCLidar::~HCLidar()
     delete [] m_p8Buff;
     m_p8Buff = nullptr;
 }
+
+void HCLidar::initPara()
+{
+	m_iSDKStatus = SDK_UNINIT;
+	m_bScanning = false;
+	m_iLastErrorCode = 0;
+	m_bDisconnect = true;
+	m_bHadID = false;
+	m_bGetIDTimeOut = false;
+	m_bHadFact = false;
+	m_bGetFactTimeOut = false;
+	m_bInitTimeout = false;
+	m_sStatistic.reset();
+}
+
 
 void HCLidar::lidarReConnect()
 {
@@ -150,10 +157,10 @@ bool HCLidar::setLidarPara(const char* chLidarModel)
         //m_iBaud = 230400;
         m_dAngleOffsetD = 28.5;
         m_dBaseline_mm = 17.92;
-        m_iFPSMax = FPS_3000_MAX;
-        m_iFPSMin = FPS_3000_MIN;
-        m_iSpeedMax = SPEED_3000_MAX;
-        m_iSpeedMin = SPEED_3000_MIN;
+        m_iFPSMax = FPS_2000_MAX;
+        m_iFPSMin = FPS_2000_MIN;
+        m_iSpeedMax = SPEED_2000_MAX;
+        m_iSpeedMin = SPEED_2000_MIN;
         m_iCircleNumberMAX=515;
     }
     else if(m_strLidarModel == X2N)
@@ -258,6 +265,7 @@ BOOL HCLidar::unInit()
 
     m_serial.closeDevice();
 
+	initPara();
     return true;
 }
 
@@ -572,7 +580,7 @@ bool HCLidar::processData()
     }
     if(iIndex < 0)
     {
-        std::cout << "Error: rx data not mes header" << std::endl;
+        //std::cout << "Error: rx data not mes header" << std::endl;
         m_lstBuff.clear();
         return false;
     }
@@ -580,7 +588,7 @@ bool HCLidar::processData()
     if(iIndex>0)
     {
         HCHead::eraseBuff(m_lstBuff,iIndex);
-        std::cout << "Error: find mes header,buff size=" << m_lstBuff.size() << std::endl;
+        //std::cout << "Error: find mes header,buff size=" << m_lstBuff.size() << std::endl;
     }
 
 

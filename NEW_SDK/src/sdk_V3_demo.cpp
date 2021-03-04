@@ -115,7 +115,7 @@ int main()
             {
                 LstNodeDistQ2 lstG;
                 device.getScanData(lstG, false);
-                std::cout << "Main: Poll DistQ2 Rx Points=" << lstG.size() <<std::endl;
+                //std::cout << "Main: Poll DistQ2 Rx Points=" << lstG.size() <<std::endl;
                 for(auto sInfo : lstG)
                 {
                     //std::cout << "Main: Angle=" << (double)sInfo.angle_q6_checkbit/64.0f  << ",Dist=" << sInfo.distance_q2/4 << std::endl;
@@ -125,7 +125,7 @@ int main()
             {
                 LstPointCloud lstG;
                 device.getRxPointClouds(lstG);
-                std::cout << "Main: Poll Rx Points=" << lstG.size() <<std::endl;
+                //std::cout << "Main: Poll Rx Points=" << lstG.size() <<std::endl;
                 for(auto sInfo : lstG)
                 {
                     //std::cout << "Main: Angle=" << sInfo.dAngle  << ",AngleRaw=" << sInfo.dAngleRaw << ",Dist=" << sInfo.u16Dist << std::endl;
