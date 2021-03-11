@@ -50,11 +50,11 @@ int main()
 
     std::cout << "Main: SDK verion=" << device.getSDKVersion() << std::endl;
 
-    auto funErrorCode = std::bind(sdkCallBackFunErrorCode, std::placeholders::_1);
-    device.setCallBackFunErrorCode(funErrorCode);
+    //auto funErrorCode = std::bind(sdkCallBackFunErrorCode, std::placeholders::_1);
+    //device.setCallBackFunErrorCode(funErrorCode);
 
-    auto funSecondInfo = std::bind(sdkCallBackFunSecondInfo, std::placeholders::_1);
-    device.setCallBackFunSecondInfo(funSecondInfo);
+    //auto funSecondInfo = std::bind(sdkCallBackFunSecondInfo, std::placeholders::_1);
+    //device.setCallBackFunSecondInfo(funSecondInfo);
 
     if(!bPollMode)//call back
     {
@@ -65,7 +65,7 @@ int main()
         device.setCallBackFunDistQ2(funDistQ2);
     }
 
-    tsSDKPara sPara;
+    /*tsSDKPara sPara;
     sPara.iNoDataMS = 1000;
     sPara.iDisconnectMS = 3000;
     sPara.iFPSContinueMS = 5000;
@@ -74,15 +74,15 @@ int main()
     sPara.iBlockContinueMS = 3500;
     sPara.iCoverPoints = 100;
     sPara.iPollBuffSize = 1000;
-    sPara.iCallbackBuffSize = 50;
+    sPara.iCallbackBuffSize = 50;*/
 
 	int iBaud = 115200;
 	int iReadTimeoutms = 10;//
     // ##### 1. Open serial port using valid COM id #####
 #ifdef _WIN32
-    rtn = device.initialize("//./com3", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode,sPara) ;                     // For windows OS
+    rtn = device.initialize("//./com3", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;                     // For windows OS
 #else
-    rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode,sPara) ;               // For Linux OS
+    rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;               // For Linux OS
 #endif
 
     if (rtn != 1)
@@ -98,6 +98,13 @@ int main()
 		}
         
     }
+
+	device.unInit();
+#ifdef _WIN32
+	rtn = device.initialize("//./com3", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);                     // For windows OS
+#else
+	rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);               // For Linux OS
+#endif
 
 
     std::cout << "Main: Lidar ID=" << device.getLidarID() << std::endl;
@@ -115,7 +122,7 @@ int main()
             {
                 LstNodeDistQ2 lstG;
                 device.getScanData(lstG, false);
-                //std::cout << "Main: Poll DistQ2 Rx Points=" << lstG.size() <<std::endl;
+                std::cout << "Main: Poll DistQ2 Rx Points=" << lstG.size() <<std::endl;
                 for(auto sInfo : lstG)
                 {
                     //std::cout << "Main: Angle=" << (double)sInfo.angle_q6_checkbit/64.0f  << ",Dist=" << sInfo.distance_q2/4 << std::endl;
@@ -124,18 +131,44 @@ int main()
             else
             {
                 LstPointCloud lstG;
-                device.getRxPointClouds(lstG);
-                //std::cout << "Main: Poll Rx Points=" << lstG.size() <<std::endl;
-                for(auto sInfo : lstG)
-                {
-                    //std::cout << "Main: Angle=" << sInfo.dAngle  << ",AngleRaw=" << sInfo.dAngleRaw << ",Dist=" << sInfo.u16Dist << std::endl;
-                }
+				if (device.getRxPointClouds(lstG))
+				{
+					std::cout << "Main: Poll Rx Points=" << lstG.size() << std::endl;
+					for (auto sInfo : lstG)
+					{
+						//std::cout << "Main: Angle=" << sInfo.dAngle  << ",AngleRaw=" << sInfo.dAngleRaw << ",Dist=" << sInfo.u16Dist << std::endl;
+					}
+				}
+
+				int iError = device.getLastErrCode();
+				if (iError != LIDAR_SUCCESS)
+				{
+					std::cout << "Main: Poll Rx Points error code=" << iError << std::endl;
+					switch (iError)
+					{
+					case ERR_SHARK_MOTOR_BLOCKED:
+						break;
+					case ERR_SHARK_INVALID_POINTS:
+						break;
+					case ERR_LIDAR_SPEED_LOW:
+						break;
+					case ERR_LIDAR_SPEED_HIGH:
+						break;
+					case ERR_DISCONNECTED:
+						break;
+					default:
+						break;
+					}
+				}
+				
+				
+                
             }
         }
         int iSDKStatus = device.getSDKStatus();
         //std::cout << "Main: SDK Status=" << iSDKStatus <<std::endl;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::this_thread::yield();
         //printf("\n");
     }

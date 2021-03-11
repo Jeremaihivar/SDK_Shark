@@ -32,7 +32,7 @@ public:
     HCLidar();
     ~HCLidar();
 
-    BOOL initialize(const char* chPort, const char* chLidarModel, int iBaud, int iReadTimeoutMs, bool bDistQ2,bool bGetLoopData, bool bPollMode,tsSDKPara& sSDKPara);
+    BOOL initialize(const char* chPort, const char* chLidarModel, int iBaud, int iReadTimeoutMs, bool bDistQ2,bool bGetLoopData, bool bPollMode);
     BOOL unInit();
 
     void setCallBackFunErrorCode(CallBackFunErroCode fun)
@@ -94,9 +94,9 @@ public:
         return (char*)m_strHardwareVer.c_str();
     }
 
-
-    void getRxPointClouds(LstPointCloud& lstG);
-    void getScanData(std::list<tsNodeInfo>& dataList, bool bReverse=true);
+	void setWorkPara(tsSDKPara& sSDKPara);
+    bool getRxPointClouds(LstPointCloud& lstG);
+    bool getScanData(std::list<tsNodeInfo>& dataList, bool bReverse=true);
 
 private:
     void threadWork();

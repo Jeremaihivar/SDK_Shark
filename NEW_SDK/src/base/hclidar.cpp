@@ -48,6 +48,11 @@ void HCLidar::lidarReConnect()
     m_bGetFactTimeOut=false;
 }
 
+void HCLidar::setWorkPara(tsSDKPara& sSDKPara)
+{
+	m_sSDKPara = sSDKPara;
+}
+
 bool HCLidar::setLidarPara(const char* chLidarModel)
 {
     m_strLidarModel = chLidarModel;
@@ -182,7 +187,7 @@ bool HCLidar::setLidarPara(const char* chLidarModel)
     return true;
 }
 //bGetLoopData 是否输出一圈的数据
-BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud, int iReadTimeoutMs,  bool bDistQ2,bool bGetLoopData, bool bPollMode,tsSDKPara& sSDKPara)
+BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud, int iReadTimeoutMs,  bool bDistQ2,bool bGetLoopData, bool bPollMode)
 {
     if(m_bScanning)
     {
@@ -211,7 +216,7 @@ BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud,
         m_iReadTimeOutms = READ_TIMEOUT_MS;
     }
 
-    m_sSDKPara = sSDKPara;
+   
 
 
     if(!setLidarPara(chLidarModel))
@@ -894,20 +899,20 @@ bool HCLidar::getMCUCmd(std::vector<UCHAR>& lstBuff)
                 {
                     std::cout << "Info: MCU message <Motor blocked>" << std::endl;
 
-                    if(m_iLastErrorCode != ERR_MOTOR_BLOCKED)
+                    /*if(m_iLastErrorCode != ERR_MOTOR_BLOCKED)
                     {
                         setReadCharsError(ERR_MOTOR_BLOCKED);
 
 
-                    }
+                    }*/
                     checkSharkBlocked();
                 }
                 else
                 {
 
                     std::cout << "Info: MCU message <Lidar reboot>" << std::endl;
-                    if(m_iLastErrorCode != ERR_REBOOT_LIDAR)
-                        setReadCharsError(ERR_REBOOT_LIDAR);
+                    /*if(m_iLastErrorCode != ERR_REBOOT_LIDAR)
+                        setReadCharsError(ERR_REBOOT_LIDAR);*/
                 }
             }
         }
@@ -1187,12 +1192,12 @@ bool HCLidar::checkDataCal(std::vector<UCHAR>& lstBuff, int iIndex)
     bool is_equal = (checksum_target == checksum_cur);
     return is_equal;
 }
-void HCLidar::getRxPointClouds(LstPointCloud& lstG)
+bool HCLidar::getRxPointClouds(LstPointCloud& lstG)
 {
     if(!m_bPollMode)
     {
         setReadCharsError(ERR_POLL_MODE);
-        return;
+        return false;
     }
     if(lstG.size() > 0)
     {
@@ -1204,7 +1209,10 @@ void HCLidar::getRxPointClouds(LstPointCloud& lstG)
     {
         lstG.swap(m_resultRange);
     }
-
+	if(lstG.size()>0)
+		return true;
+	if (m_iLastErrorCode != LIDAR_SUCCESS)
+		return false;
 }
 
 
@@ -1387,10 +1395,13 @@ void HCLidar::getScanData(tsNodeInfo * nodebuffer, size_t buffLen, size_t &count
 }
 */
 
-void HCLidar::getScanData(std::list<tsNodeInfo>& dataList, bool bReverse)
+bool HCLidar::getScanData(std::list<tsNodeInfo>& dataList, bool bReverse)
 {
 
     grabScanData(dataList);
+
+	if (dataList.size() == 0)
+		return false;
 
     for (auto it = dataList.begin(); it != dataList.end(); ++it)
     {
@@ -1412,6 +1423,7 @@ void HCLidar::getScanData(std::list<tsNodeInfo>& dataList, bool bReverse)
 
         it->angle_q6_checkbit = angle_cur * 64;
     }
+	return true;
 }
 
 

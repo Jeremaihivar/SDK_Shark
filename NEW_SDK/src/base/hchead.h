@@ -8,7 +8,7 @@
 #include <list>
 #include <iostream>
 
-#define SDK_VER                    (char*)"3.0.0"
+#define SDK_VER                    (char*)"3.0.2"
 
 typedef unsigned char              UCHAR;
 typedef unsigned char              UINT8;
@@ -135,7 +135,7 @@ typedef struct tsSDKPara
         iBlockContinueMS=3500;
         iCoverPoints = 100;
         iPollBuffSize=1000;
-        iCallbackBuffSize = 40;
+        iCallbackBuffSize = 50;
     }
 }tsSDKPara;
 
