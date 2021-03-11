@@ -48,7 +48,7 @@ int main()
     bool bDistQ2 = false;
     bool bLoop = false;
 
-    std::cout << "Main: SDK verion=" << device.getSDKVersion() << std::endl;
+    std::cout << "Main: SDK verion=" << device.getSDKVersion().c_str() << std::endl;
 
     //auto funErrorCode = std::bind(sdkCallBackFunErrorCode, std::placeholders::_1);
     //device.setCallBackFunErrorCode(funErrorCode);
@@ -99,19 +99,19 @@ int main()
         
     }
 
-	device.unInit();
-#ifdef _WIN32
-	rtn = device.initialize("//./com3", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);                     // For windows OS
-#else
-	rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);               // For Linux OS
-#endif
+//	device.unInit();
+//#ifdef _WIN32
+//	rtn = device.initialize("//./com5", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);                     // For windows OS
+//#else
+//	rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);               // For Linux OS
+//#endif
+//
 
-
-    std::cout << "Main: Lidar ID=" << device.getLidarID() << std::endl;
-    std::cout << "Main: Factory Info:" << device.getFactoryInfo() << std::endl;
-    std::cout << "Main: Firmware ver:" << device.getFirmwareVersion() << std::endl;
-    std::cout << "Main: Hardware ver:" << device.getHardwareVersion() << std::endl;
-	std::cout << "Main: Lidar model:" << device.getLidarModel() << std::endl;
+    std::cout << "Main: Lidar ID=" << device.getLidarID().c_str() << std::endl;
+    std::cout << "Main: Factory Info:" << device.getFactoryInfo().c_str() << std::endl;
+    std::cout << "Main: Firmware ver:" << device.getFirmwareVersion().c_str() << std::endl;
+    std::cout << "Main: Hardware ver:" << device.getHardwareVersion().c_str() << std::endl;
+	std::cout << "Main: Lidar model:" << device.getLidarModel().c_str() << std::endl;
 
     while (true)
     {
@@ -139,30 +139,32 @@ int main()
 						//std::cout << "Main: Angle=" << sInfo.dAngle  << ",AngleRaw=" << sInfo.dAngleRaw << ",Dist=" << sInfo.u16Dist << std::endl;
 					}
 				}
-
-				int iError = device.getLastErrCode();
-				if (iError != LIDAR_SUCCESS)
+				else
 				{
-					std::cout << "Main: Poll Rx Points error code=" << iError << std::endl;
-					switch (iError)
+					int iError = device.getLastErrCode();
+					if (iError != LIDAR_SUCCESS)
 					{
-					case ERR_SHARK_MOTOR_BLOCKED:
-						break;
-					case ERR_SHARK_INVALID_POINTS:
-						break;
-					case ERR_LIDAR_SPEED_LOW:
-						break;
-					case ERR_LIDAR_SPEED_HIGH:
-						break;
-					case ERR_DISCONNECTED:
-						break;
-					default:
-						break;
+						std::cout << "Main: Poll Rx Points error code=" << iError << std::endl;
+						switch (iError)
+						{
+						case ERR_SHARK_MOTOR_BLOCKED:
+							break;
+						case ERR_SHARK_INVALID_POINTS:
+							break;
+						case ERR_LIDAR_SPEED_LOW:
+							break;
+						case ERR_LIDAR_SPEED_HIGH:
+							break;
+						case ERR_DISCONNECTED:
+							break;
+						case ERR_LIDAR_FPS_INVALID:
+							break;
+						default:
+							break;
+						}
 					}
 				}
-				
-				
-                
+				                
             }
         }
         int iSDKStatus = device.getSDKStatus();

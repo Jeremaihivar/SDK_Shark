@@ -8,7 +8,9 @@
 #include <list>
 #include <iostream>
 
-#define SDK_VER                    (char*)"3.0.2"
+#define SDK_VER                    (char*)"3.0.3"
+
+#define SHARK_ENABLE               1
 
 typedef unsigned char              UCHAR;
 typedef unsigned char              UINT8;
@@ -99,7 +101,7 @@ typedef struct tsNodeInfo
     UINT16    syn_quality;
     UINT16    angle_q6_checkbit;
     UINT16    distance_q2;
-    UINT16    isValid;// 1Valid  0 invalid
+    UINT16    isValid;// 1Valid,  0 invalid
    /* bool operator<(const tsNodeInfo& _Left) const
     {
         if (_Left.angle_q6_checkbit < this->angle_q6_checkbit)
@@ -308,7 +310,7 @@ typedef struct tsSDKStatistic
     int           iInvalid;
     UINT32        dRMS;
     UINT64        u64CurrentS;
-    int           iGrayBytes;
+    int           iGrayBytes;    //
     tsSDKStatistic()
     {
         reset();
@@ -331,19 +333,19 @@ typedef struct tsSDKStatistic
     }
 }tsSDKStatistic;
 
-
+//pointcloud
 typedef struct tsPointCloud
 {
-    bool         bValid;                  
-    double       dAngle;            
-    double       dAngleRaw;      
-    double       dAngleDisp;       
-    UINT16       u16Dist;        
-    UINT16       u16DistRaw;
-    UINT16       u16Speed;
-    UINT16       u16Gray;
-    bool         bGrayTwoByte;
-    UINT64       u64TimeStampMs;      
+    bool         bValid;       // true Valid point, false  invalid            
+    double       dAngle;       // compensate angle    ,degree     
+    double       dAngleRaw;    // raw angle     ,degree 
+    double       dAngleDisp;   // don't care    
+    UINT16       u16Dist;      // compensate distance  ,mm  
+    UINT16       u16DistRaw;   // raw distance,mm
+    UINT16       u16Speed;     // motor speed, RPM
+    UINT16       u16Gray;      // luminance
+    bool         bGrayTwoByte; // true  u16Gray 2byte ,false u16Gray 1byte 
+    UINT64       u64TimeStampMs;    // timestamp ,ms  
     tsPointCloud() :
         bValid(true),
         dAngle(0.),

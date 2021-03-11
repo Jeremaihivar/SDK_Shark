@@ -1194,6 +1194,7 @@ bool HCLidar::checkDataCal(std::vector<UCHAR>& lstBuff, int iIndex)
 }
 bool HCLidar::getRxPointClouds(LstPointCloud& lstG)
 {
+#if SHARK_ENABLE
     if(!m_bPollMode)
     {
         setReadCharsError(ERR_POLL_MODE);
@@ -1204,15 +1205,68 @@ bool HCLidar::getRxPointClouds(LstPointCloud& lstG)
         LstPointCloud tmp;
         tmp.swap(lstG);
     }
-    std::lock_guard<std::mutex> lock(m_mtxData);
-    if(m_resultRange.size()>0)
-    {
-        lstG.swap(m_resultRange);
-    }
-	if(lstG.size()>0)
-		return true;
-	if (m_iLastErrorCode != LIDAR_SUCCESS)
+	int iError = m_iLastErrorCode;
+
+	bool bOK = true;
+	switch (iError)
+	{
+	case ERR_SHARK_MOTOR_BLOCKED:
+
+	case ERR_SHARK_INVALID_POINTS:
+
+	case ERR_LIDAR_SPEED_LOW:
+
+	case ERR_LIDAR_SPEED_HIGH:
+
+	case ERR_DISCONNECTED:
+	case ERR_LIDAR_FPS_INVALID:
+		bOK = false;
+		
+		break;
+	
+	default:
+		break;
+	}
+
+	if (bOK)
+	{
+		std::lock_guard<std::mutex> lock(m_mtxData);
+		if (m_resultRange.size() > 0)
+		{
+			lstG.swap(m_resultRange);
+		}
+	}
+	else
+	{
+		std::lock_guard<std::mutex> lock(m_mtxData);
+		if (m_resultRange.size() > 0)
+		{
+			LstPointCloud tmp;
+			m_resultRange.swap(tmp);
+		}
+	}
+    
+	return bOK;
+
+#else
+	if (!m_bPollMode)
+	{
+		setReadCharsError(ERR_POLL_MODE);
 		return false;
+	}
+	if (lstG.size() > 0)
+	{
+		LstPointCloud tmp;
+		tmp.swap(lstG);
+	}
+	std::lock_guard<std::mutex> lock(m_mtxData);
+	if (m_resultRange.size() > 0)
+	{
+		lstG.swap(m_resultRange);
+	}
+	return true;
+
+#endif
 }
 
 

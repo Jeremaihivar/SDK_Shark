@@ -32,25 +32,35 @@ public:
     HCLidar();
     ~HCLidar();
 
+	//init sdk
     BOOL initialize(const char* chPort, const char* chLidarModel, int iBaud, int iReadTimeoutMs, bool bDistQ2,bool bGetLoopData, bool bPollMode);
     BOOL unInit();
 
+	//set callback function for error code
     void setCallBackFunErrorCode(CallBackFunErroCode fun)
     {
         m_funErrorCode = fun;
     }
+
+	//set callback function for Statistic infomation
     void setCallBackFunSecondInfo(CallBackFunSecondInfo fun)
     {
         m_funSecondInfo = fun;
     }
+
+	//set callback function for rx pointclouds
     void setCallBackFunPointCloud(CallBackFunPointCloud fun)
     {
         m_funPointCloud = fun;
     }
+
+	//set callback function for rx Distance Q2
     void setCallBackFunDistQ2(CallBackFunDistQ2 fun)
     {
         m_funDistQ2 = fun;
     }
+
+	//get error code
     int getLastErrCode()
     {
         int err = m_iLastErrorCode;
@@ -59,43 +69,55 @@ public:
         return err;
     }
 
+	//get SDK status
     int getSDKStatus()
     {
         return m_iSDKStatus;
     }
 
-    char* getSDKVersion() const
+	// get SDK Version
+	std::string getSDKVersion() const
     {
         return SDK_VER;
     }
 
-    char* getLidarID() const
+	//get lidar ID
+	std::string getLidarID() const
     {
-        return (char*)m_strDevID.c_str();
+        return m_strDevID;
     }
 
-    char* getFactoryInfo() const
+	// get factory infomation
+	std::string getFactoryInfo() const
     {
-        return (char*)m_strFactoryInfo.c_str();
+        return m_strFactoryInfo;
     }
 
-    char* getLidarModel() const
+	//get lidar model
+	std::string getLidarModel() const
     {
-        return (char*)m_strLidarModel.c_str();
+        return m_strLidarModel;
     }
 
-    char* getFirmwareVersion() const
+	//get firmware version
+	std::string getFirmwareVersion() const
     {
-        return (char*)m_strFirmwareVer.c_str();
+        return m_strFirmwareVer;
     }
 
-    char* getHardwareVersion() const
+	//get hardware version
+	std::string getHardwareVersion() const
     {
-        return (char*)m_strHardwareVer.c_str();
+        return m_strHardwareVer;
     }
 
+	// set work parameter
 	void setWorkPara(tsSDKPara& sSDKPara);
+
+	//poll mode,get pointclouds
     bool getRxPointClouds(LstPointCloud& lstG);
+
+	//poll mode,get ScanData
     bool getScanData(std::list<tsNodeInfo>& dataList, bool bReverse=true);
 
 private:
