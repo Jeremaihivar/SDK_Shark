@@ -189,23 +189,24 @@ bool HCLidar::setLidarPara(const char* chLidarModel)
 //bGetLoopData 是否输出一圈的数据
 BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud, int iReadTimeoutMs,  bool bDistQ2,bool bGetLoopData, bool bPollMode)
 {
+	LOG_INFO("Init sdk\n");
     if(m_bScanning)
     {
 
-        std::cout << "Error:Had been init." << std::endl;
+		LOG_WARNING( "Had been init.\n");
         setReadCharsError(ERR_SDK_HAD_BEEN_INIT);
         return false;
     }
     if(chPort == NULL)
     {
-        std::cout <<"Error:port is null." << std::endl;
+		LOG_ERROR("port is null.\n" );
         setReadCharsError(ERR_SDK_INIT_PARA);
         return false;
     }
 
     if(chLidarModel == NULL)
     {
-        std::cout <<"lidar mode is null."<< std::endl;
+		LOG_ERROR("lidar mode is null.\n");
         setReadCharsError(ERR_SDK_INIT_PARA);
         return false;
     }
@@ -221,7 +222,7 @@ BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud,
 
     if(!setLidarPara(chLidarModel))
     {
-        std::cout <<"Error:Lidar mode does not exists."<< std::endl;
+		LOG_ERROR("Lidar mode does not exists.\n");
         setReadCharsError(ERR_MODE_NOT_EXISTS);
         return false;
     }
@@ -231,7 +232,7 @@ BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud,
     if (m_serial.openDevice(chPort, m_iBaud) != 1)
     {
 
-        std::cout <<"Error:open serial port failed."<< std::endl;
+		LOG_ERROR("open serial port failed.\n");
         setReadCharsError(ERR_SERIAL_INVALID_HANDLE);
         return false;
     }
@@ -250,10 +251,10 @@ BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud,
     while (!m_bReady)
         m_cvInit.wait(lck);
 
-    std::cout << "Info: Init complete" << std::endl;
+	LOG_INFO("Init complete\n");
 
 
-    return m_bHadID;
+	return m_bHadID;
 }
 
 BOOL HCLidar::unInit()
@@ -333,13 +334,13 @@ void HCLidar::readData()
             int iTemp2 = m_sSDKPara.iDisconnectMS / m_iReadTimeOutms;
             if(m_iReadTimeoutCount%iTemp == 0)
             {
-                std::cout << "Error: Lidar read timeout!" << std::endl;
+				LOG_WARNING("Lidar read timeout!\n");
 
                 setReadCharsError(iRC);
             }
             else if(m_iReadTimeoutCount >= iTemp2 )
             {
-                std::cout << "Error: Lidar disconnect! status=" << m_iSDKStatus << std::endl;
+				LOG_ERROR("Lidar disconnect! status=%d\n" , static_cast<int>(m_iSDKStatus) );
                 if(m_iSDKStatus == SDK_INIT)
                 {
                     checkHadInitSuccess(true);
@@ -402,14 +403,14 @@ void HCLidar::threadParse()
 				{
 					m_bGetIDTimeOut = true;
 					m_bHadID = false;
-					std::cout << "Info: Get Device ID timeout" << std::endl;
+					LOG_INFO("Get Device ID timeout\n" );
 					checkHadInitSuccess(true);
 				}
 
 				if (!m_bHadFact && !m_bGetFactTimeOut && m_bHadID)
 				{
 
-					std::cout << "Info: Get Two CMD info timeout" << std::endl;
+					LOG_INFO("Get Two CMD info timeout\n" );
 					checkHadInitSuccess(false);
 				}
 
@@ -585,7 +586,7 @@ bool HCLidar::processData()
     }
     if(iIndex < 0)
     {
-        //std::cout << "Error: rx data not mes header" << std::endl;
+        //printf("HCSDK Error: rx data not mes header\n" );
         m_lstBuff.clear();
         return false;
     }
@@ -593,7 +594,7 @@ bool HCLidar::processData()
     if(iIndex>0)
     {
         HCHead::eraseBuff(m_lstBuff,iIndex);
-        //std::cout << "Error: find mes header,buff size=" << m_lstBuff.size() << std::endl;
+        //printf("HCSDK Error: find mes header,buff size=%d\n" , m_lstBuff.size());
     }
 
 
@@ -657,23 +658,28 @@ bool HCLidar::getDevID(std::vector<UCHAR>& lstBuff)
 
         if(calIDX2((char*)lstBuff.data(),iLen))
         {
-
-            sprintf(chTemp, "%02X%02X%02X%02X%02X%02X%02X",
+#if SHARK_ENABLE
+            sprintf(chTemp, "000000000000000000%02X%02X%02X%02X%02X%02X%02X",
                                 sID.u8Ver[0], sID.u8Ver[1], sID.u8Ver[2],
                                 sID.u8ID[0], sID.u8ID[1], sID.u8ID[2], sID.u8ID[3]);
+#else
+			sprintf(chTemp, "%02X%02X%02X%02X%02X%02X%02X",
+				sID.u8Ver[0], sID.u8Ver[1], sID.u8Ver[2],
+				sID.u8ID[0], sID.u8ID[1], sID.u8ID[2], sID.u8ID[3]);
+#endif
 
             m_strDevID = chTemp;
 
             //m_bHadID = true;
 
             memset(chTemp,0,128);
-            sprintf(chTemp, "%02X.%02X.%02X",
+            sprintf(chTemp, "00.%02X.%02X.%02X",
                                 sID.u8Ver[0], sID.u8Ver[1], sID.u8Ver[2]);
 
             m_strFirmwareVer = chTemp;
 
 
-            std::cout << "Info: Get ID ok!" << std::endl;
+			LOG_INFO("Get ID ok!\n");
             sendGetIDInfoSignal(true);
 
         }
@@ -681,7 +687,7 @@ bool HCLidar::getDevID(std::vector<UCHAR>& lstBuff)
         {
             m_strDevID = std::string(DEFAULT_ID);
 
-            std::cout << "Error: ID cal error!" << std::endl;
+			LOG_ERROR("ID cal error!\n" );
 
 
         }
@@ -703,13 +709,17 @@ bool HCLidar::getDevID(std::vector<UCHAR>& lstBuff)
 
         if(calIDX1((char*)lstBuff.data(),iLen))
         {
-
-            sprintf(chTemp, "%02X%02X%02X%02X",
+#if SHARK_ENABLE
+            sprintf(chTemp, "000000000000000000000000%02X%02X%02X%02X",
                                 sID.u8ID[3], sID.u8ID[2], sID.u8ID[1], sID.u8ID[0]);
+#else
+			sprintf(chTemp, "%02X%02X%02X%02X",
+				sID.u8ID[3], sID.u8ID[2], sID.u8ID[1], sID.u8ID[0]);
+#endif
 
             m_strDevID = chTemp;
             //m_bHadID = true;
-            std::cout << "Info: Get ID ok!" << std::endl;
+			LOG_INFO("Get ID ok!\n" );
             sendGetIDInfoSignal(true);
 
         }
@@ -717,7 +727,7 @@ bool HCLidar::getDevID(std::vector<UCHAR>& lstBuff)
         {
             m_strDevID = std::string(DEFAULT_ID);
 
-            std::cout << "Error: ID cal error!" << std::endl;
+			LOG_ERROR("ID cal error!\n");
 
 
         }
@@ -750,7 +760,7 @@ bool HCLidar::calStartInfo(char* ch,int iLen)
 bool HCLidar::getStartInfo(std::vector<UCHAR>& lstBuff)
 {
 
-    printf("Info: getStartInfo!");
+	LOG_INFO("getStartInfo!\n");
 
     int iLen = sizeof(tsCmdInfo);
     int iMin =  iLen <lstBuff.size() ? iLen : lstBuff.size();
@@ -764,7 +774,7 @@ bool HCLidar::getStartInfo(std::vector<UCHAR>& lstBuff)
 
         HCHead::eraseBuff(lstBuff,sizeof(tsCmdStart));
 
-        std::cout << "Error: lidar start message" << std::endl;
+		LOG_ERROR("lidar start message\n");
         setReadCharsError(ERR_START_INFO);
         return true;
     }
@@ -779,14 +789,14 @@ bool HCLidar::getStartInfo(std::vector<UCHAR>& lstBuff)
 
 
             sendGetFactoryInfoSignal(true);
-            std::cout << "Info: lidar factory info:" << (char*)sCmd.u8FacInfo << std::endl;
+			LOG_INFO("lidar factory info:%s\n" , (char*)sCmd.u8FacInfo );
             return true;
         }
         else
         {
             HCHead::eraseBuff(lstBuff,sizeof(tsCmdStart));
 
-            std::cout << "Error: lidar start message cal error" << std::endl;
+			LOG_ERROR("lidar start message cal error\n");
             setReadCharsError(ERR_START_INFO);
             return true;
 
@@ -814,19 +824,25 @@ bool HCLidar::getStartInfo(std::vector<UCHAR>& lstBuff)
             std::string strModel = chTemp;
             if(strModel != m_strLidarModel)
             {
-                std::cout << "Warinning: Lidar model error init:" << (char*)m_strLidarModel.c_str() << ",device:" << (char*)strModel.c_str() << std::endl;
+				LOG_WARNING("Lidar model error init:%s,device:%s\n",(char*)m_strLidarModel.c_str(),  (char*)strModel.c_str() );
                 //setReadCharsError(ERR_DEV_MODEL);
 				setLidarPara(chTemp);
             }
 
             memset(chTemp,0,128);
-            sprintf(chTemp, "%02X%02X%02X%02X%02X%02X%02X",
+#if SHARK_ENABLE
+            sprintf(chTemp, "00000000000000000000%02X%02X%02X%02X%02X%02X%02X",
                                 sNewInfo.u8FacInfo[3], sNewInfo.u8FacInfo[4], sNewInfo.u8FacInfo[5],
                                 sNewInfo.u8ID[0], sNewInfo.u8ID[1], sNewInfo.u8ID[2], sNewInfo.u8ID[3]);
+#else
+			sprintf(chTemp, "%02X%02X%02X%02X%02X%02X%02X",
+				sNewInfo.u8FacInfo[3], sNewInfo.u8FacInfo[4], sNewInfo.u8FacInfo[5],
+				sNewInfo.u8ID[0], sNewInfo.u8ID[1], sNewInfo.u8ID[2], sNewInfo.u8ID[3]);
+#endif
 
             m_strDevID = chTemp;
 
-            std::cout << "Info: Get ID ok ID:" << chTemp << std::endl;
+			LOG_INFO("Get ID ok ID:%s\n",chTemp );
 
 
             memset(chTemp,0,128);
@@ -846,14 +862,14 @@ bool HCLidar::getStartInfo(std::vector<UCHAR>& lstBuff)
             sendGetIDInfoSignal(true);
 
             sendGetFactoryInfoSignal(true);
-            std::cout << "Info: New lidar factory info:" << (char*)m_strFactoryInfo.c_str() << ",Hardware ver:" << (char*)m_strHardwareVer.c_str() << std::endl;
+			LOG_INFO("New lidar factory info:%s,Hardware ver:%s\n" , (char*)m_strFactoryInfo.c_str() , (char*)m_strHardwareVer.c_str());
             return true;
         }
         else
         {
             HCHead::eraseBuff(lstBuff,sizeof(tsIDNew));
 
-            std::cout << "Error: New lidar factory info cal error" << std::endl;
+			LOG_ERROR("New lidar factory info cal error\n" );
             setReadCharsError(ERR_START_INFO);
             return true;
 
@@ -863,7 +879,7 @@ bool HCLidar::getStartInfo(std::vector<UCHAR>& lstBuff)
     {
         HCHead::eraseBuff(lstBuff,sizeof(tsCmdStart));
 
-        std::cout << "Error: lidar start message" << std::endl;
+		LOG_ERROR("lidar start message\n" );
         setReadCharsError(ERR_START_INFO);
         return true;
     }
@@ -897,7 +913,7 @@ bool HCLidar::getMCUCmd(std::vector<UCHAR>& lstBuff)
             {
                 if(sBlockMessage.u8Code == 0x01)
                 {
-                    std::cout << "Info: MCU message <Motor blocked>" << std::endl;
+					LOG_INFO("MCU message <Motor blocked>\n" );
 
                     /*if(m_iLastErrorCode != ERR_MOTOR_BLOCKED)
                     {
@@ -910,7 +926,7 @@ bool HCLidar::getMCUCmd(std::vector<UCHAR>& lstBuff)
                 else
                 {
 
-                    std::cout << "Info: MCU message <Lidar reboot>" << std::endl;
+					LOG_INFO("MCU message <Lidar reboot>\n");
                     /*if(m_iLastErrorCode != ERR_REBOOT_LIDAR)
                         setReadCharsError(ERR_REBOOT_LIDAR);*/
                 }
@@ -977,7 +993,7 @@ bool HCLidar::getPointCloud(std::vector<UCHAR>& lstBuff)
         }
         if(checkDataCal(lstBuff, iPackLen))//good packet
         {
-            //printf("Info: lidar point cal ok! buff size=%d\n",lstBuff.size());
+
 
             m_sStatistic.u64RxPacketCount++;
             m_sStatistic.iNumPerPacket = sPointCloudHead.u8Num ;
@@ -1049,12 +1065,12 @@ bool HCLidar::getPointCloud(std::vector<UCHAR>& lstBuff)
                 }
             }
 
-            //std::cout << "Info: lidar point cal ok! Point cloud buff size=" << m_resultRange.size() << std::endl;
+			//LOG_INFO("lidar point cal ok! Point cloud buff size=%d\n" ,m_resultRange.size() );
         }
         else
         {
 
-            std::cout << "Error: lidar point cloud error!" << std::endl;
+			LOG_ERROR("lidar point cloud error!\n");
             m_sStatistic.u64ErrorPacketCount++;
             setReadCharsError(ERR_CHECKDATA_INVALID);
 
@@ -1278,7 +1294,7 @@ void HCLidar::checkInvalidFPS(int iFPS)
 		int iTemp = m_sSDKPara.iFPSContinueMS / 1000;
         if (m_iInvalidFPSSecond > iTemp)
         {
-            std::cout << "Erro: FPS:" << iFPS <<  std::endl;
+			LOG_ERROR("FPS:%d \n" , iFPS );
             setReadCharsError(ERR_LIDAR_FPS_INVALID);
 
             m_iInvalidFPSSecond = 0;
@@ -1357,7 +1373,7 @@ void HCLidar::checkSharkBlocked()
         {
             if(m_iSharkBlockCount>0)
             {
-                std::cout << "Error: Shark moto block"  <<  std::endl;
+				LOG_ERROR("Shark moto block\n");
                 setReadCharsError(ERR_SHARK_MOTOR_BLOCKED);
                 m_u64StartTimeSharkBlock = 0;
                 m_iSharkBlockCount=0;
@@ -1594,7 +1610,7 @@ void HCLidar::grabScanData(tsNodeInfo * nodebuffer, size_t buffLen, size_t &coun
     {
         if (count > buffLen)
         {
-            std::cout << "Error: Rx buffer is too small" << std::endl;
+			LOG_ERROR("Rx buffer is too small\n" );
             setReadCharsError(ERR_RECEIVE_BUFFER_SMALL);
             count = 0;
             return;

@@ -1,6 +1,6 @@
 ﻿
 #include "base/hclidar.h"
-
+#include "LidarTest.h"
 #include <stdio.h>
 
 
@@ -39,8 +39,7 @@ void sdkCallBackFunDistQ2(LstNodeDistQ2 lstG)
 
 int main()
 {
-    const int data_num = 8;
-    //rangedata dataPack[data_num];
+
     HCLidar device;
     int fps = 0, rtn = 0;
 
@@ -65,53 +64,40 @@ int main()
         device.setCallBackFunDistQ2(funDistQ2);
     }
 
-    /*tsSDKPara sPara;
-    sPara.iNoDataMS = 1000;
-    sPara.iDisconnectMS = 3000;
-    sPara.iFPSContinueMS = 5000;
-    sPara.iSpeedContinueMS = 3500;
-    sPara.iCoverContinueMS = 3500;
-    sPara.iBlockContinueMS = 3500;
-    sPara.iCoverPoints = 100;
-    sPara.iPollBuffSize = 1000;
-    sPara.iCallbackBuffSize = 50;*/
 
 	int iBaud = 115200;
 	int iReadTimeoutms = 10;//
     // ##### 1. Open serial port using valid COM id #####
 #ifdef _WIN32
-    rtn = device.initialize("//./com3", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;                     // For windows OS
+    rtn = device.initialize("//./com5", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;                     // For windows OS
 #else
     rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;               // For Linux OS
 #endif
 
     if (rtn != 1)
     {
-		int iErrorCode = device.getLastErrCode();
-		if (iErrorCode == ERR_SERIAL_INVALID_HANDLE || iErrorCode == ERR_SERIAL_READFILE_FAILED)
-		{
-			device.unInit();
-			std::cout << "Main: Init sdk failed!\n" << std::endl;
-			getchar();
-			exit(0);
-			return 0;
-		}
+		device.unInit();
+		printf("Main: Init sdk failed!\n");
+		getchar();
+		exit(0);
+		return 0;
         
     }
 
-//	device.unInit();
+	//device.unInit();
+	//device.unInit();
 //#ifdef _WIN32
 //	rtn = device.initialize("//./com5", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);                     // For windows OS
 //#else
 //	rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);               // For Linux OS
 //#endif
-//
 
-    std::cout << "Main: Lidar ID=" << device.getLidarID().c_str() << std::endl;
-    std::cout << "Main: Factory Info:" << device.getFactoryInfo().c_str() << std::endl;
-    std::cout << "Main: Firmware ver:" << device.getFirmwareVersion().c_str() << std::endl;
-    std::cout << "Main: Hardware ver:" << device.getHardwareVersion().c_str() << std::endl;
-	std::cout << "Main: Lidar model:" << device.getLidarModel().c_str() << std::endl;
+
+	printf( "Lidar ID=%s\n" , device.getLidarID().c_str());
+	printf( "Factory Info:%s\n" , device.getFactoryInfo().c_str());
+	printf( "Main: Firmware ver:%s\n", device.getFirmwareVersion().c_str() );
+	printf( "Main: Hardware ver:%s\n", device.getHardwareVersion().c_str());
+	printf( "Main: Lidar model:%s\n" , device.getLidarModel().c_str() );
 
     while (true)
     {
@@ -122,10 +108,10 @@ int main()
             {
                 LstNodeDistQ2 lstG;
                 device.getScanData(lstG, false);
-                std::cout << "Main: Poll DistQ2 Rx Points=" << lstG.size() <<std::endl;
+				printf( "Main: Poll DistQ2 Rx Points=%d\n" ,lstG.size() );
                 for(auto sInfo : lstG)
                 {
-                    //std::cout << "Main: Angle=" << (double)sInfo.angle_q6_checkbit/64.0f  << ",Dist=" << sInfo.distance_q2/4 << std::endl;
+					//printf("Main: Angle=%0.2f,Dist=%d\n" ,(double)sInfo.angle_q6_checkbit/64.0f  , sInfo.distance_q2/4 );
                 }
             }
             else
@@ -133,7 +119,7 @@ int main()
                 LstPointCloud lstG;
 				if (device.getRxPointClouds(lstG))
 				{
-					std::cout << "Main: Poll Rx Points=" << lstG.size() << std::endl;
+					printf("Main: Poll Rx Points=%d\n",lstG.size());
 					for (auto sInfo : lstG)
 					{
 						//std::cout << "Main: Angle=" << sInfo.dAngle  << ",AngleRaw=" << sInfo.dAngleRaw << ",Dist=" << sInfo.u16Dist << std::endl;
@@ -144,7 +130,7 @@ int main()
 					int iError = device.getLastErrCode();
 					if (iError != LIDAR_SUCCESS)
 					{
-						std::cout << "Main: Poll Rx Points error code=" << iError << std::endl;
+						printf( "Main: Poll Rx Points error code=%d\n", iError );
 						switch (iError)
 						{
 						case ERR_SHARK_MOTOR_BLOCKED:
@@ -168,11 +154,11 @@ int main()
             }
         }
         int iSDKStatus = device.getSDKStatus();
-        //std::cout << "Main: SDK Status=" << iSDKStatus <<std::endl;
+		//printf("Main: SDK Status=%d\n" ,iSDKStatus );
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::this_thread::yield();
-        //printf("\n");
+        //printf("main....\n");
     }
 
     // ##### 4. Close serial #####

@@ -8,7 +8,7 @@
 #include <list>
 #include <iostream>
 
-#define SDK_VER                    (char*)"3.0.3"
+#define SDK_VER                    (char*)"3.0.4"
 
 #define SHARK_ENABLE               1
 
@@ -31,10 +31,10 @@ typedef unsigned long long int     UINT64;
 #define FALSE                           0
 
 
-#define  DEFAULT_ID                     (char*)"00000000000000"
+#define  DEFAULT_ID                     (char*)"00000000000000000000000000000000"
 #define  DEFAULT_FACTORY                (char*)"CS"
-#define  DEFAULT_FIRMWARE               (char*)"00.00.03.02"
-#define  DEFAULT_HARDWARE               (char*)"00.01.01.02"
+#define  DEFAULT_FIRMWARE               (char*)"00.00.00.00"
+#define  DEFAULT_HARDWARE               (char*)"00.00.00.00"
 
 #define  X1B                            "X1B"
 #define  X1D                            "X1D"
@@ -373,5 +373,9 @@ public:
 };
 
 bool nodeComparator(const tsNodeInfo& s1, const tsNodeInfo& s2);
+
+#define LOG_WARNING (printf("HCSDK Warning:%s:%s %s:%u:\t", __DATE__, __TIME__, __FILE__, __LINE__), printf) 
+#define LOG_INFO    (printf("HCSDK Info:%s:%s %s:%u:\t", __DATE__, __TIME__, __FILE__, __LINE__), printf) 
+#define LOG_ERROR   (printf("HCSDK Error:%s:%s %s:%u:\t", __DATE__, __TIME__, __FILE__, __LINE__), printf) 
 
 #endif // HCHEAD_H
