@@ -69,7 +69,7 @@ int main()
 	int iReadTimeoutms = 10;//
     // ##### 1. Open serial port using valid COM id #####
 #ifdef _WIN32
-    rtn = device.initialize("//./com5", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;                     // For windows OS
+    rtn = device.initialize("//./com3", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;                     // For windows OS
 #else
     rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2,bLoop, bPollMode) ;               // For Linux OS
 #endif
@@ -119,10 +119,10 @@ int main()
                 LstPointCloud lstG;
 				if (device.getRxPointClouds(lstG))
 				{
-					printf("Main: Poll Rx Points=%d\n",lstG.size());
+					//printf("Main: Poll Rx Points=%d\n",lstG.size());
 					for (auto sInfo : lstG)
 					{
-						//std::cout << "Main: Angle=" << sInfo.dAngle  << ",AngleRaw=" << sInfo.dAngleRaw << ",Dist=" << sInfo.u16Dist << std::endl;
+						printf( "Main: Angle=%0.4f,Dist=%d\n", sInfo.dAngle , sInfo.u16Dist );
 					}
 				}
 				else
@@ -156,7 +156,7 @@ int main()
         int iSDKStatus = device.getSDKStatus();
 		//printf("Main: SDK Status=%d\n" ,iSDKStatus );
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         std::this_thread::yield();
         //printf("main....\n");
     }

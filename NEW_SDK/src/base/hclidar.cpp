@@ -1250,6 +1250,7 @@ bool HCLidar::getRxPointClouds(LstPointCloud& lstG)
 		if (m_resultRange.size() > 0)
 		{
 			lstG.swap(m_resultRange);
+			std::stable_sort(lstG.begin(), lstG.end(), newComparator);
 		}
 	}
 	else

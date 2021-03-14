@@ -8,7 +8,7 @@
 #include <list>
 #include <iostream>
 
-#define SDK_VER                    (char*)"3.0.4"
+#define SDK_VER                    (char*)"3.0.5"
 
 #define SHARK_ENABLE               1
 
@@ -373,6 +373,7 @@ public:
 };
 
 bool nodeComparator(const tsNodeInfo& s1, const tsNodeInfo& s2);
+bool newComparator(const tsPointCloud& s1, const tsPointCloud& s2);
 
 #define LOG_WARNING (printf("HCSDK Warning:%s:%s %s:%u:\t", __DATE__, __TIME__, __FILE__, __LINE__), printf) 
 #define LOG_INFO    (printf("HCSDK Info:%s:%s %s:%u:\t", __DATE__, __TIME__, __FILE__, __LINE__), printf) 

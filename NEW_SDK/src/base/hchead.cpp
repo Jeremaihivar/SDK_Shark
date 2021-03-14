@@ -7,6 +7,12 @@ bool nodeComparator(const tsNodeInfo& s1, const tsNodeInfo& s2)
 	return s1.angle_q6_checkbit < s2.angle_q6_checkbit;
 }
 
+bool newComparator(const tsPointCloud& s1, const tsPointCloud& s2)
+{
+	return s1.dAngle > s2.dAngle;
+}
+
+
 HCHead::HCHead()
 {
 
