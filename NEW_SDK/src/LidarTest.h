@@ -25,6 +25,7 @@ private:
 private:
 	HCLidar *m_device;
 	std::thread  m_threadWork;
+	bool     m_bRun = true;
 };
 
 

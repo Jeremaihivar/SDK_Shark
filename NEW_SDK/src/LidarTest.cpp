@@ -5,12 +5,18 @@
 
 LidarTest::LidarTest()
 {
+	printf("LidarTest: LidarTest()\n");
 	m_device = nullptr;
 
 	m_threadWork = std::thread(&LidarTest::initLidar, this);
 }
 LidarTest::~LidarTest()
 {
+	printf("LidarTest: ~LidarTest()\n");
+	m_bRun = false;
+	if (m_threadWork.joinable())
+		m_threadWork.join();
+
 	if (m_device)
 	{
 		m_device->unInit();
@@ -62,22 +68,22 @@ void LidarTest::initLidar()
 	bool bDistQ2 = false;
 	bool bLoop = false;
 
-	std::cout << "Main: SDK verion=" << device.getSDKVersion().c_str() << std::endl;
+	printf("Main: SDK verion=%s\n" , device.getSDKVersion().c_str() );
 
-	auto funErrorCode = std::bind(&LidarTest::sdkCallBackFunErrorCode, this,std::placeholders::_1);
-	device.setCallBackFunErrorCode(funErrorCode);
+	//auto funErrorCode = std::bind(&LidarTest::sdkCallBackFunErrorCode, this,std::placeholders::_1);
+	//device.setCallBackFunErrorCode(funErrorCode);
 
-	auto funSecondInfo = std::bind(&LidarTest::sdkCallBackFunSecondInfo, this,std::placeholders::_1);
-	device.setCallBackFunSecondInfo(funSecondInfo);
+	//auto funSecondInfo = std::bind(&LidarTest::sdkCallBackFunSecondInfo, this,std::placeholders::_1);
+	//device.setCallBackFunSecondInfo(funSecondInfo);
 
-	if (!bPollMode)//call back
-	{
-		auto funPointCloud = std::bind(&LidarTest::sdkCallBackFunPointCloud, this,std::placeholders::_1);
-		device.setCallBackFunPointCloud(funPointCloud);
+	//if (!bPollMode)//call back
+	//{
+	//	auto funPointCloud = std::bind(&LidarTest::sdkCallBackFunPointCloud, this,std::placeholders::_1);
+	//	device.setCallBackFunPointCloud(funPointCloud);
 
-		auto funDistQ2 = std::bind(&LidarTest::sdkCallBackFunDistQ2, this,std::placeholders::_1);
-		device.setCallBackFunDistQ2(funDistQ2);
-	}
+	//	auto funDistQ2 = std::bind(&LidarTest::sdkCallBackFunDistQ2, this,std::placeholders::_1);
+	//	device.setCallBackFunDistQ2(funDistQ2);
+	//}
 
 	/*tsSDKPara sPara;
 	sPara.iNoDataMS = 1000;
@@ -94,7 +100,7 @@ void LidarTest::initLidar()
 	int iReadTimeoutms = 10;//
 	// ##### 1. Open serial port using valid COM id #####
 #ifdef _WIN32
-	rtn = device.initialize("//./com5", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);                     // For windows OS
+	rtn = device.initialize("//./com3", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);                     // For windows OS
 #else
 	rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);               // For Linux OS
 #endif
@@ -105,7 +111,7 @@ void LidarTest::initLidar()
 		if (iErrorCode == ERR_SERIAL_INVALID_HANDLE || iErrorCode == ERR_SERIAL_READFILE_FAILED)
 		{
 			device.unInit();
-			std::cout << "Main: Init sdk failed!\n" << std::endl;
+			printf("LidarTest: Init sdk failed!\n");
 			return ;
 		}
 
@@ -120,13 +126,13 @@ void LidarTest::initLidar()
 #endif
 
 
-	std::cout << "Main: Lidar ID=" << device.getLidarID().c_str() << std::endl;
-	std::cout << "Main: Factory Info:" << device.getFactoryInfo().c_str() << std::endl;
-	std::cout << "Main: Firmware ver:" << device.getFirmwareVersion().c_str() << std::endl;
-	std::cout << "Main: Hardware ver:" << device.getHardwareVersion().c_str() << std::endl;
-	std::cout << "Main: Lidar model:" << device.getLidarModel().c_str() << std::endl;
+	printf("LidarTest: Lidar ID=%s\n", device.getLidarID().c_str());
+	printf("LidarTest: Factory Info:%s\n", device.getFactoryInfo().c_str());
+	printf("LidarTest: Firmware ver:%s\n", device.getFirmwareVersion().c_str());
+	printf("LidarTest: Hardware ver:%s\n", device.getHardwareVersion().c_str());
+	printf("LidarTest: Lidar model:%s\n", device.getLidarModel().c_str());
 
-	while (true)
+	while (m_bRun)
 	{
 
 		if(bPollMode)
@@ -146,10 +152,10 @@ void LidarTest::initLidar()
 		        LstPointCloud lstG;
 				if (device.getRxPointClouds(lstG))
 				{
-					std::cout << "Main: Poll Rx Points=" << lstG.size() << std::endl;
+					printf("LidarTest: Poll Rx Points=%d\n", lstG.size());
 					for (auto sInfo : lstG)
 					{
-						//std::cout << "Main: Angle=" << sInfo.dAngle  << ",AngleRaw=" << sInfo.dAngleRaw << ",Dist=" << sInfo.u16Dist << std::endl;
+						//printf("LidarTest: Angle=%0.4f,Dist=%d\n", sInfo.dAngle, sInfo.u16Dist);
 					}
 				}
 				else
@@ -157,7 +163,7 @@ void LidarTest::initLidar()
 					int iError = device.getLastErrCode();
 					if (iError != LIDAR_SUCCESS)
 					{
-						std::cout << "Main: Poll Rx Points error code=" << iError << std::endl;
+						printf("LidarTest: Poll Rx Points error code=%d" , iError );
 						switch (iError)
 						{
 						case ERR_SHARK_MOTOR_BLOCKED:
@@ -181,12 +187,13 @@ void LidarTest::initLidar()
 		    }
 		}
 		int iSDKStatus = device.getSDKStatus();
-		//std::cout << "Main: SDK Status=" << iSDKStatus <<std::endl;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		std::this_thread::yield();
 		//printf("\n");
 	}
 
 	device.unInit();
 }
+
