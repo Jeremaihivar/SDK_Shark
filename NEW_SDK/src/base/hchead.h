@@ -8,7 +8,7 @@
 #include <list>
 #include <iostream>
 
-#define SDK_VER                    (char*)"3.0.6"
+#define SDK_VER                    (char*)"3.0.7"
 
 #define SHARK_ENABLE               1
 

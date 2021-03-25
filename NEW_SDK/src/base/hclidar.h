@@ -69,6 +69,8 @@ public:
         return err;
     }
 
+	bool getLidarInfo();
+
 	//get SDK status
     int getSDKStatus()
     {

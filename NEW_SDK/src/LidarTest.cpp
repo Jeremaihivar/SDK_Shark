@@ -116,15 +116,17 @@ void LidarTest::initLidar()
 		}
 
 	}
+		
+	//std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+	//在这里给雷达上电
 
-	//device.unInit();
-	//device.unInit();
-#ifdef _WIN32
-	rtn = device.initialize("//./com5", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);                     // For windows OS
-#else
-	rtn = device.initialize("/dev/ttyPort1", "X2M", iBaud, iReadTimeoutms, bDistQ2, bLoop, bPollMode);               // For Linux OS
-#endif
-
+	if (!device.getLidarInfo())
+	{
+		device.unInit();
+		printf("LidarTest: Get lidar info failed!\n");
+		return;
+		
+	}
 
 	printf("LidarTest: Lidar ID=%s\n", device.getLidarID().c_str());
 	printf("LidarTest: Factory Info:%s\n", device.getFactoryInfo().c_str());

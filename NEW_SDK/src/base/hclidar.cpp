@@ -247,12 +247,25 @@ BOOL HCLidar::initialize(const char* chPort, const char* chLidarModel,int iBaud,
     m_threadWork = std::thread(&HCLidar::threadWork, this);
     m_threadParse = std::thread(&HCLidar::threadParse, this);
 
-    std::unique_lock<std::mutex> lck(m_mtxInit);
+   /* std::unique_lock<std::mutex> lck(m_mtxInit);
     while (!m_bReady)
-        m_cvInit.wait(lck);
+        m_cvInit.wait(lck);*/
 
 	LOG_INFO("Init complete\n");
 
+
+	return true;
+}
+
+bool HCLidar::getLidarInfo()
+{
+	if (m_bHadID)
+	{
+		return true;
+	}
+	std::unique_lock<std::mutex> lck(m_mtxInit);
+	while (!m_bReady)
+		m_cvInit.wait(lck);
 
 	return m_bHadID;
 }
